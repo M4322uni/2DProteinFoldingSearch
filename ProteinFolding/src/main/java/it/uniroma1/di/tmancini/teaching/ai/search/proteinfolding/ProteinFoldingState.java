@@ -2,7 +2,7 @@ package it.uniroma1.di.tmancini.teaching.ai.search.proteinfolding;
 
 import it.uniroma1.di.tmancini.teaching.ai.search.*;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -35,7 +35,10 @@ public class ProteinFoldingState extends State {
         this.y = y;
         stage = old.stage+1;
         this.sequence = old.sequence;
-        configuration = old.configuration.clone();
+        int n = old.configuration.length;
+        configuration = new char[n][n];
+        for (int i = 0; i < n; i++)
+            configuration[i] = old.configuration[i].clone();
         setConfiguration(y, x, sequence.charAt(stage));
     }
 
@@ -50,7 +53,7 @@ public class ProteinFoldingState extends State {
     }
 
     private int countCost(Direction move) {
-        int cost = 1, length = sequence.length(), nX, nY;
+        int cost = 8, length = sequence.length(), nX, nY;
         switch (move) {
             case UP:
                 nX = x; nY = y-1; break;
@@ -70,7 +73,7 @@ public class ProteinFoldingState extends State {
             for (int i = max(nY-1, -length+1); i <= min(nY+1, length-1); i++) {
                 for (int j = max(nX-1, -length+1); j <= min(nX+1, length-1); j++) {
                     if ((i == nY && j == nX) || (i == y && j == x)) continue;
-                    if (sequence.charAt(stage+1) != getConfiguration(i, j)) cost++;
+                    if (sequence.charAt(stage+1) == getConfiguration(i, j)) cost--;
                 }
             }
             return cost;
@@ -87,6 +90,7 @@ public class ProteinFoldingState extends State {
             if (cost != -1)
                 ret.add(new ProteinFoldingAction(val, cost));
         }
+//        System.out.println(x + " " + y + " " + Arrays.toString(ret.toArray()));
         return ret;
     }
 
@@ -161,6 +165,32 @@ public class ProteinFoldingState extends State {
 //        construct.append("Sequence: ");
 //        for ()
         return construct.toString();
+    }
+
+    @Override
+    public double hValue() {
+        return 0;
+    }
+
+    private int[] checkSurroundings() {
+        int h = 0, p = 0, rad = sequence.length()-stage-1,
+            startDecrement = 1, endIncrement = 1,
+            start = x, end = x;
+        for (int i = y-rad; i <= y+rad; i++) {
+            for (int j = start; j <= end; j++) {
+                if (getConfiguration(i, j) == 'H')
+                    h++;
+                else if (getConfiguration(i, j) == 'P')
+                    p++;
+            }
+            if (i == y) {
+                startDecrement = -startDecrement;
+                endIncrement = -endIncrement;
+            }
+            start -= startDecrement;
+            end += endIncrement;
+        }
+        return new int[] {h, p};
     }
 
     //TODO

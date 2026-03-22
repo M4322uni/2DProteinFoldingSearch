@@ -1,12 +1,10 @@
 package it.uniroma1.di.tmancini.teaching.ai.search.proteinfolding;
 
 import it.uniroma1.di.tmancini.teaching.ai.search.*;
+import jdk.jshell.spi.ExecutionControl;
 import picocli.*;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class ProteinFolding extends Problem implements Callable<Integer> {
@@ -42,15 +40,17 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
     private void checkInput() {
         Set<String> domain = Set.of("DFS", "BFS", "MIN_COST",
                 "ITERATIVE_DEEPENING", "BEST_FIRST", "A_STAR");
-        if (!domain.contains(algo.toUpperCase())) {
+        algo = algo.toUpperCase();
+        int n = sequence.length();
+        if (!domain.contains(algo)) {
             throw new IllegalArgumentException(
                     "[ERROR] Unknown algorithm.");
         }
-        if (this.x <= 0) {
+        if (-n+1 > this.x || this.x > n-1) {
             throw new IllegalArgumentException(
                     "[ERROR] X-coordinate out of range.");
         }
-        if (this.y < 0) {
+        if (-n+1 > this.y || this.y > n-1 ) {
             throw new IllegalArgumentException(
                     "[ERROR] Y-coordinate out of range.");
         }
@@ -59,6 +59,11 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
                     "[ERROR] Negative verbosity levels are not allowed."
                     + " Please a non-negative value for option '--verbosity'");
         }
+        sequence = sequence.toUpperCase();
+        if (sequence.chars().anyMatch(x -> x != 'H' && x != 'P')) {
+            throw new IllegalArgumentException(
+                    "[ERROR] Invalid ammino-acids chain");
+        }
     }
 
     @Override
@@ -66,13 +71,39 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
         try {
             checkInput();
 
+            SearchStateExplorer explorer = switch (algo) {
+                case "DFS" -> new DFSExplorer(this);
+                case "BFS" -> new BFSExplorer(this);
+                case "MIN_COST" -> new MinCostExplorer(this);
+                case "ITERATIVE_DEEPENING" -> throw new IllegalArgumentException("Not yet implemented");
+                case "BEST_FIRST" -> throw new IllegalArgumentException("Not yet implemented");
+                case "A_STAR" -> throw new IllegalArgumentException("Not yet implemented");
+                default -> throw new RuntimeException("Unexpected branch");
+            };
 
+            explorer.setVerbosity(SearchStateExplorer.VERBOSITY.values()[vlevel]);
 
+            ProteinFoldingState initialState = new ProteinFoldingState(this, sequence, x, y);
+            long startStamp, endStamp;
+            List<Action> result;
+
+            System.out.println("Starting search");
+            startStamp = System.currentTimeMillis();
+            result = explorer.run( initialState );
+            endStamp = System.currentTimeMillis();
+            System.out.println("Search ended");
+            explorer.outputStats();
+            System.out.println("Actions: " + Arrays.toString(result.toArray()));
             return 0;
         }
-        catch (IllegalArgumentException e) {
+        catch (Exception e) {
             e.printStackTrace();
             return 1;
         }
+    }
+
+    public static void main(String[] args) {
+        int exitCode = new CommandLine(new ProteinFolding()).execute(args);
+        System.exit(exitCode);
     }
 }

@@ -16,12 +16,17 @@ public class ProteinFoldingAction extends Action {
         this.cost = cost;
     }
 
+    public Direction getDirection() {
+        return direction;
+    }
+
     @Override
     public double getCost() {
         return cost;
     }
 
-    public Direction getDirection() {
-        return direction;
+    @Override
+    public String toString() {
+        return direction.toString();
     }
 }
