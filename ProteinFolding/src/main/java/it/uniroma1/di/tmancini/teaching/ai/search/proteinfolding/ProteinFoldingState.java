@@ -158,6 +158,8 @@ public class ProteinFoldingState extends State {
             }
             construct.append("\n");
         }
+//        construct.append("Sequence: ");
+//        for ()
         return construct.toString();
     }
 
