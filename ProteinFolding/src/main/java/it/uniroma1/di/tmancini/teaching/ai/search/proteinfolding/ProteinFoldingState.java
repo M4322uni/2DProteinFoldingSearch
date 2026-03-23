@@ -25,7 +25,7 @@ public class ProteinFoldingState extends State {
         for (int i = 0; i < 2*sequenceLength-1; i++)
             for (int j = 0; j < 2*sequenceLength-1; j++)
                     configuration[i][j] = '#';
-        setConfiguration(0, 0, sequence.charAt(0));
+        setConfiguration(y, x, sequence.charAt(0));
     }
 
     public ProteinFoldingState(Problem p, ProteinFoldingState old, int x, int y) {
@@ -171,6 +171,18 @@ public class ProteinFoldingState extends State {
     public double hValue() {
         int[] hP = checkSurroundings(), hPBuff = new int[] {0, 0};
         int cost = 0;
+        switch (getConfiguration(y, x)) {
+            case 'H':
+                hP[0]--;
+                hPBuff[0] = 1;
+                break;
+            case 'P':
+                hP[1]--;
+                hPBuff[1] = 1;
+                break;
+            default:
+                throw new RuntimeException("Invalid state");
+        }
         for (int i = stage+1; i < sequence.length(); i++) {
             switch (sequence.charAt(i)) {
                 case 'H':
