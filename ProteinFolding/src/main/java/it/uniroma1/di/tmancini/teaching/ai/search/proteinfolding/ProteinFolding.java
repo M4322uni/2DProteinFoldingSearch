@@ -1,7 +1,6 @@
 package it.uniroma1.di.tmancini.teaching.ai.search.proteinfolding;
 
 import it.uniroma1.di.tmancini.teaching.ai.search.*;
-import jdk.jshell.spi.ExecutionControl;
 import picocli.*;
 
 import java.util.*;
@@ -75,13 +74,13 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
                 case "DFS" -> new DFSExplorer(this);
                 case "BFS" -> new BFSExplorer(this);
                 case "MIN_COST" -> new MinCostExplorer(this);
-                case "ITERATIVE_DEEPENING" -> throw new IllegalArgumentException("Not yet implemented");
+                case "ITERATIVE_DEEPENING" -> new IterativeDeepeningDFSExplorer(this);
                 case "BEST_FIRST" -> new BestFirstGreedyExplorer(this);
                 case "A_STAR" -> new AstarExplorer(this);
                 default -> throw new RuntimeException("Unexpected branch");
             };
 
-            explorer.setVerbosity(SearchStateExplorer.VERBOSITY.values()[vlevel]);
+            explorer.setVerbosity(IterativeDeepeningDFSExplorer.VERBOSITY.values()[vlevel]);
 
             ProteinFoldingState initialState = new ProteinFoldingState(this, sequence, x, y);
             List<Action> result;
