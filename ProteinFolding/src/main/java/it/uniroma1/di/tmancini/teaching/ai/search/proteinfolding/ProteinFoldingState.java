@@ -227,10 +227,4 @@ public class ProteinFoldingState extends State {
         }
         return new int[] {h, p};
     }
-
-    //TODO
-    @Override
-    public String toStringWithPrefix(String prefix) {
-        throw new UnsupportedOperationException("Needs to be implemented by non-abstract subclasses");
-    }
 }
