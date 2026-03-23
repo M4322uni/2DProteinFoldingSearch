@@ -171,7 +171,7 @@ public class ProteinFoldingState extends State {
     public double hValue() {
         int[] hP = checkSurroundings(), hPBuff = new int[] {0, 0};
         int cost = 0;
-        for (int i = stage; i < sequence.length(); i++) {
+        for (int i = stage+1; i < sequence.length(); i++) {
             switch (sequence.charAt(i)) {
                 case 'H':
                     cost += 8 - min(hP[0], 7);
