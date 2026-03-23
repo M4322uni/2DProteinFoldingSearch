@@ -76,21 +76,18 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
                 case "BFS" -> new BFSExplorer(this);
                 case "MIN_COST" -> new MinCostExplorer(this);
                 case "ITERATIVE_DEEPENING" -> throw new IllegalArgumentException("Not yet implemented");
-                case "BEST_FIRST" -> throw new IllegalArgumentException("Not yet implemented");
-                case "A_STAR" -> throw new IllegalArgumentException("Not yet implemented");
+                case "BEST_FIRST" -> new BestFirstGreedyExplorer(this);
+                case "A_STAR" -> new AstarExplorer(this);
                 default -> throw new RuntimeException("Unexpected branch");
             };
 
             explorer.setVerbosity(SearchStateExplorer.VERBOSITY.values()[vlevel]);
 
             ProteinFoldingState initialState = new ProteinFoldingState(this, sequence, x, y);
-            long startStamp, endStamp;
             List<Action> result;
 
             System.out.println("Starting search");
-            startStamp = System.currentTimeMillis();
             result = explorer.run( initialState );
-            endStamp = System.currentTimeMillis();
             System.out.println("Search ended");
             explorer.outputStats();
             System.out.println("Actions: " + Arrays.toString(result.toArray()));

@@ -2,7 +2,6 @@ package it.uniroma1.di.tmancini.teaching.ai.search.proteinfolding;
 
 import it.uniroma1.di.tmancini.teaching.ai.search.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -84,13 +83,15 @@ public class ProteinFoldingState extends State {
     @Override
     public Collection<? extends Action> executableActions() {
         LinkedList<ProteinFoldingAction> ret = new LinkedList<>();
-        int length = sequence.length(), cost;
+        int cost;
         for (Direction val : Direction.values()) {
             cost = countCost(val);
             if (cost != -1)
                 ret.add(new ProteinFoldingAction(val, cost));
         }
 //        System.out.println(x + " " + y + " " + Arrays.toString(ret.toArray()));
+//        int[] res = checkSurroundings();
+//        System.out.println(res[0] + " " + res[1]);
         return ret;
     }
 
@@ -156,8 +157,7 @@ public class ProteinFoldingState extends State {
                         construct.append(" P |");
                         break;
                     default:
-                        construct.append("Warning: unknown molecule");
-                        break;
+                        throw new RuntimeException("Invalid state");
                 }
             }
             construct.append("\n");
@@ -169,15 +169,38 @@ public class ProteinFoldingState extends State {
 
     @Override
     public double hValue() {
-        return 0;
+        int[] hP = checkSurroundings(), hPBuff = new int[] {0, 0};
+        int cost = 0;
+        for (int i = stage; i < sequence.length(); i++) {
+            switch (sequence.charAt(i)) {
+                case 'H':
+                    cost += 8 - min(hP[0], 7);
+                    hP[0] += hPBuff[0];
+                    hP[1] += hPBuff[1];
+                    hPBuff[0] = 1;
+                    hPBuff[1] = 0;
+                    break;
+                case 'P' :
+                    cost += 8 - min(hP[1], 7);
+                    hP[0] += hPBuff[0];
+                    hP[1] += hPBuff[1];
+                    hPBuff[0] = 0;
+                    hPBuff[1] = 1;
+                    break;
+                default :
+                    throw new RuntimeException("Invalid state");
+            }
+        }
+        return cost;
     }
 
     private int[] checkSurroundings() {
-        int h = 0, p = 0, rad = sequence.length()-stage-1,
+        int h = 0, p = 0, len = sequence.length(),
+            rad = len-stage-1,
             startDecrement = 1, endIncrement = 1,
             start = x, end = x;
-        for (int i = y-rad; i <= y+rad; i++) {
-            for (int j = start; j <= end; j++) {
+        for (int i = max(y-rad, -len+1); i <= min(y+rad, len-1); i++) {
+            for (int j = max(start, -len+1); j <= min(end, len-1); j++) {
                 if (getConfiguration(i, j) == 'H')
                     h++;
                 else if (getConfiguration(i, j) == 'P')
