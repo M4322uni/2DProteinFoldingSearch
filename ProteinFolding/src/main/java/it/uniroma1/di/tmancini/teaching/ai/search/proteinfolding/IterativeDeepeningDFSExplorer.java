@@ -39,6 +39,11 @@ public class IterativeDeepeningDFSExplorer extends SearchStateExplorer {
     }
 
     @Override
+    public List<Action> run(State initialState, boolean findOptimal) {
+        return run(initialState);
+    }
+
+    @Override
     public List<Action> run(State initialState) {
         int maxDepth = 1;
         List<Action> ret;
@@ -81,6 +86,7 @@ public class IterativeDeepeningDFSExplorer extends SearchStateExplorer {
             outputNode(VERBOSITY.high, currDepth, currNode);
 
             if (currState.isGoal()) {
+
                 result = currNode;
                 done = true;
             } else {
@@ -121,7 +127,6 @@ public class IterativeDeepeningDFSExplorer extends SearchStateExplorer {
     private static String outputPrefix(int depth) {
         String s = prefixes.get(depth);
         if (s != null) return s;
-
         s = "      ".repeat(Math.max(0, depth));
         prefixes.put(depth, s);
         return s;

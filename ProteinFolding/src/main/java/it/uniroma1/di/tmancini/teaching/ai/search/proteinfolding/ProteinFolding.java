@@ -86,7 +86,7 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
             List<Action> result;
 
             System.out.println("Starting search");
-            result = explorer.run( initialState );
+            result = explorer.run(initialState , true);
             System.out.println("Search ended");
             explorer.outputStats();
             System.out.println("Actions: " + Arrays.toString(result.toArray()));
