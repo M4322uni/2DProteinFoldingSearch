@@ -39,19 +39,19 @@ public class IterativeDeepeningDFSExplorer extends SearchStateExplorer {
     }
 
     @Override
-    public List<Action> run(State initialState, boolean findOptimal) {
-        return run(initialState);
+    public List<Action> run(State initialState) {
+        return run(initialState, false);
     }
 
     @Override
-    public List<Action> run(State initialState) {
+    public List<Action> run(State initialState, boolean findBestSolution) {
         int maxDepth = 1;
         List<Action> ret;
-        while ((ret = runOne(initialState, maxDepth)) == null) maxDepth++;
+        while ((ret = runOne(initialState, maxDepth, findBestSolution)) == null) maxDepth++;
         return ret;
     }
 
-    private List<Action> runOne(State initialState, int maxDepth) {
+    private List<Action> runOne(State initialState, int maxDepth, boolean findBestSolution) {
         isRunning = true;
         frontier.clear();
         frontier.enqueue(  new SearchNode(initialState) );
@@ -86,9 +86,10 @@ public class IterativeDeepeningDFSExplorer extends SearchStateExplorer {
             outputNode(VERBOSITY.high, currDepth, currNode);
 
             if (currState.isGoal()) {
-
-                result = currNode;
-                done = true;
+                if (result == null || result.gValue() > currNode.gValue()) {
+                    result = currNode;
+                    if (!findBestSolution) done = true;
+                }
             } else {
                 if (currDepth < maxDepth) {
                     for(Action a : currState.executableActions()) {
