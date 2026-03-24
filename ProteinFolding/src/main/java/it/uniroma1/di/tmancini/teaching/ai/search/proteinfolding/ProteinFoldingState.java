@@ -206,13 +206,19 @@ public class ProteinFoldingState extends State {
         return cost;
     }
 
+    private boolean outOfBounds(int y, int x, int length) {
+        return y < -length+1 || y > length-1
+                || x < -length+1 || x > length-1;
+    }
+
     private int[] checkSurroundings() {
         int h = 0, p = 0, len = sequence.length(),
             rad = len-stage,
             startDecrement = 1, endIncrement = 1,
             start = x-1, end = x+1;
-        for (int i = max(y-rad, -len+1); i <= min(y+rad, len-1); i++) {
-            for (int j = max(start, -len+1); j <= min(end, len-1); j++) {
+        for (int i = y-rad; i <= y+rad; i++) {
+            for (int j = start; j <= end; j++) {
+                if (outOfBounds(i, j, len)) continue;
                 if (getConfiguration(i, j) == 'H')
                     h++;
                 else if (getConfiguration(i, j) == 'P')
