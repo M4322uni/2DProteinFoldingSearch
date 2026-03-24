@@ -70,13 +70,33 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
         try {
             checkInput();
 
+            boolean exhaustive;
+
             SearchStateExplorer explorer = switch (algo) {
-                case "DFS" -> new DFSExplorer(this);
-                case "BFS" -> new BFSExplorer(this);
-                case "MIN_COST" -> new MinCostExplorer(this);
-                case "ITERATIVE_DEEPENING" -> new IterativeDeepeningDFSExplorer(this);
-                case "BEST_FIRST" -> new BestFirstGreedyExplorer(this);
-                case "A_STAR" -> new AstarExplorer(this);
+                case "DFS" -> {
+                    exhaustive = true;
+                    yield new DFSExplorer(this);
+                }
+                case "BFS" -> {
+                    exhaustive = true;
+                    yield new BFSExplorer(this);
+                }
+                case "ITERATIVE_DEEPENING" -> {
+                    exhaustive = true;
+                    yield new IterativeDeepeningDFSExplorer(this);
+                }
+                case "MIN_COST" -> {
+                    exhaustive = false;
+                    yield new MinCostExplorer(this);
+                }
+                case "BEST_FIRST" -> {
+                    exhaustive = false;
+                    yield new BestFirstGreedyExplorer(this);
+                }
+                case "A_STAR" -> {
+                    exhaustive = false;
+                    yield new AstarExplorer(this);
+                }
                 default -> throw new RuntimeException("Unexpected branch");
             };
 
@@ -86,7 +106,7 @@ public class ProteinFolding extends Problem implements Callable<Integer> {
             List<Action> result;
 
             System.out.println("Starting search");
-            result = explorer.run(initialState , true);
+            result = explorer.run(initialState , exhaustive);
             System.out.println("Search ended");
             explorer.outputStats();
             System.out.println("Actions: " + Arrays.toString(result.toArray()));
