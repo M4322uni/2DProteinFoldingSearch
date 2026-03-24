@@ -39,11 +39,6 @@ public class IterativeDeepeningDFSExplorer extends SearchStateExplorer {
     }
 
     @Override
-    public List<Action> run(State initialState) {
-        return run(initialState, false);
-    }
-
-    @Override
     public List<Action> run(State initialState, boolean findBestSolution) {
         int maxDepth = 1;
         List<Action> ret;
