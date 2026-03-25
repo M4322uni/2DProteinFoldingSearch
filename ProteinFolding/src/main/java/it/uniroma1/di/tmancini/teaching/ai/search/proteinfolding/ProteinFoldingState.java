@@ -52,7 +52,8 @@ public class ProteinFoldingState extends State {
     }
 
     private int countCost(Direction move) {
-        int cost = 8, length = sequence.length(), nX, nY;
+        int cost = 4, length = sequence.length(), nX, nY, i, j;
+        int[][] neighbors = {{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
         switch (move) {
             case UP:
                 nX = x; nY = y-1; break;
@@ -70,11 +71,11 @@ public class ProteinFoldingState extends State {
                 && -length+1 <= nX && nX <= length-1
                 && getConfiguration(nY, nX) == '#') {
             if (sequence.charAt(stage+1) == 'P') return cost;
-            for (int i = max(nY-1, -length+1); i <= min(nY+1, length-1); i++) {
-                for (int j = max(nX-1, -length+1); j <= min(nX+1, length-1); j++) {
-                    if ((i == nY && j == nX) || (i == y && j == x)) continue;
-                    if (getConfiguration(i, j) == 'H') cost--;
-                }
+            for (int[] els : neighbors) {
+                i = nY + els[0];
+                j = nX + els[1];
+                if (i == y && j == x || outOfBounds(i, j, length)) continue;
+                if (getConfiguration(i, j) == 'H') cost--;
             }
             return cost;
         }
@@ -179,12 +180,12 @@ public class ProteinFoldingState extends State {
         for (int i = stage+1; i < sequence.length(); i++) {
             switch (sequence.charAt(i)) {
                 case 'H':
-                    cost += 8 - min(h, 7);
+                    cost += 4 - min(h, 3);
                     h += hBuff;
                     hBuff = 1;
                     break;
                 case 'P' :
-                    cost += 8;
+                    cost += 4;
                     h += hBuff;
                     hBuff = 0;
                     break;
@@ -204,17 +205,13 @@ public class ProteinFoldingState extends State {
         int h = 0, len = sequence.length(),
             rad = len-stage,
             startDecrement = 1, endIncrement = 1,
-            start = x-1, end = x+1;
+            start = x, end = x;
         for (int i = y-rad; i <= y+rad; i++) {
             for (int j = start; j <= end; j++) {
                 if (outOfBounds(i, j, len)) continue;
                 if (getConfiguration(i, j) == 'H') h++;
             }
-            if (i == y-1) {
-                startDecrement = 0;
-                endIncrement = 0;
-            }
-            else if (i == y+1) {
+            if (i == y) {
                 startDecrement = -1;
                 endIncrement = -1;
             }
