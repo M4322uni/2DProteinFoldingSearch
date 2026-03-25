@@ -174,7 +174,7 @@ public class ProteinFoldingState extends State {
         int cost = 0;
         if (getConfiguration(y, x) == 'H') {
             h--;
-            hBuff=1;
+            hBuff = 1;
         }
         for (int i = stage+1; i < sequence.length(); i++) {
             switch (sequence.charAt(i)) {
