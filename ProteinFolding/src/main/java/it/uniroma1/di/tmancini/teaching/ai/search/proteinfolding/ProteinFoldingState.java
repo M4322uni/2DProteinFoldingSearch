@@ -69,10 +69,11 @@ public class ProteinFoldingState extends State {
         if (-length+1 <= nY && nY <= length-1
                 && -length+1 <= nX && nX <= length-1
                 && getConfiguration(nY, nX) == '#') {
+            if (sequence.charAt(stage+1) == 'P') return cost;
             for (int i = max(nY-1, -length+1); i <= min(nY+1, length-1); i++) {
                 for (int j = max(nX-1, -length+1); j <= min(nX+1, length-1); j++) {
                     if ((i == nY && j == nX) || (i == y && j == x)) continue;
-                    if (sequence.charAt(stage+1) == getConfiguration(i, j)) cost--;
+                    if (getConfiguration(i, j) == 'H') cost--;
                 }
             }
             return cost;
@@ -169,35 +170,23 @@ public class ProteinFoldingState extends State {
 
     @Override
     public double hValue() {
-        int[] hP = checkSurroundings(), hPBuff = new int[] {0, 0};
+        int h = checkSurroundings(), hBuff = 0;
         int cost = 0;
-        switch (getConfiguration(y, x)) {
-            case 'H':
-                hP[0]--;
-                hPBuff[0] = 1;
-                break;
-            case 'P':
-                hP[1]--;
-                hPBuff[1] = 1;
-                break;
-            default:
-                throw new RuntimeException("Invalid state");
+        if (getConfiguration(y, x) == 'H') {
+            h--;
+            hBuff++;
         }
         for (int i = stage+1; i < sequence.length(); i++) {
             switch (sequence.charAt(i)) {
                 case 'H':
-                    cost += 8 - min(hP[0], 7);
-                    hP[0] += hPBuff[0];
-                    hP[1] += hPBuff[1];
-                    hPBuff[0] = 1;
-                    hPBuff[1] = 0;
+                    cost += 8 - min(h, 7);
+                    h += hBuff;
+                    hBuff = 1;
                     break;
                 case 'P' :
-                    cost += 8 - min(hP[1], 7);
-                    hP[0] += hPBuff[0];
-                    hP[1] += hPBuff[1];
-                    hPBuff[0] = 0;
-                    hPBuff[1] = 1;
+                    cost += 8;
+                    h += hBuff;
+                    hBuff = 0;
                     break;
                 default :
                     throw new RuntimeException("Invalid state");
@@ -211,8 +200,8 @@ public class ProteinFoldingState extends State {
                 || x < -length+1 || x > length-1;
     }
 
-    private int[] checkSurroundings() {
-        int h = 0, p = 0, len = sequence.length(),
+    private int checkSurroundings() {
+        int h = 0, len = sequence.length(),
             rad = len-stage,
             startDecrement = 1, endIncrement = 1,
             start = x-1, end = x+1;
@@ -221,8 +210,6 @@ public class ProteinFoldingState extends State {
                 if (outOfBounds(i, j, len)) continue;
                 if (getConfiguration(i, j) == 'H')
                     h++;
-                else if (getConfiguration(i, j) == 'P')
-                    p++;
             }
             if (i == y-1) {
                 startDecrement = 0;
@@ -235,6 +222,6 @@ public class ProteinFoldingState extends State {
             start -= startDecrement;
             end += endIncrement;
         }
-        return new int[] {h, p};
+        return h;
     }
 }
