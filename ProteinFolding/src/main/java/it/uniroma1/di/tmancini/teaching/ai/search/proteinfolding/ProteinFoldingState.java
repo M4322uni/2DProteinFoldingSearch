@@ -74,7 +74,7 @@ public class ProteinFoldingState extends State {
             for (int[] els : neighbors) {
                 i = nY + els[0];
                 j = nX + els[1];
-                if (i == y && j == x || outOfBounds(i, j, length)) continue;
+                if (i == nY && j == nX || outOfBounds(i, j, length)) continue;
                 if (getConfiguration(i, j) == 'H') cost--;
             }
             return cost;
