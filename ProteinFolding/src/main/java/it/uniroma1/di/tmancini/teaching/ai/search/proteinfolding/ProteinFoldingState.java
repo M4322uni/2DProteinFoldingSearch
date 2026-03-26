@@ -13,6 +13,7 @@ public class ProteinFoldingState extends State {
     private final int x, y, stage;
     private final String sequence;
     private final char[][] configuration;
+    private final static int[][] neighbors = {{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
 
     public ProteinFoldingState(Problem p, String sequence, int x, int y) {
         super(p);
@@ -53,7 +54,6 @@ public class ProteinFoldingState extends State {
 
     private int countCost(Direction move) {
         int cost = 4, length = sequence.length(), nX, nY, i, j;
-        int[][] neighbors = {{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
         switch (move) {
             case UP:
                 nX = x; nY = y-1; break;
